@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import React,{useState,useEffect} from 'react'
+import Dashboard from './pages/Dashboard'
+import Auth from './pages/Auth'
+import Profile from './pages/Profile'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
-function App() {
+const App = () => { 
+
+  const[auth,setAuth] = useState(false) 
+  console.log("auth",auth)
+  useEffect(()=>{
+    let user=localStorage.getItem('user')
+    user && JSON.parse(user) ? setAuth(true) : setAuth(false)
+  } ,
+  [])
+  useEffect(()=>{
+    localStorage.setItem('user',auth)
+  },[auth])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <Routes>
+        {!auth && (
+        <Route path="/auth" element={<Auth authenticate={()=>setAuth(true)} />} />
+        )}
+        {auth && (<>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile logout={()=>setAuth(false)} />} />
+        </>
+        )}
+        <Route path='*' element={<Navigate to={auth ? "/profile":"/auth"} />} />
+      </Routes>
+    </>
+  )
 }
 
-export default App;
+export default App
